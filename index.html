@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+    <style>
+        canvas {
+            border: 1px solid gray;
+        }
+    </style>
+</head>
+<body>
+    <h1>동그라미 패턴</h1>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        // 동그라미 객체
+        class Circle {
+            constructor(x, y, radius, dx, dy) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.dx = dx; // x 방향 속도
+                this.dy = dy; // y 방향 속도
+            }
+
+            // 동그라미 그리기
+            draw() {
+                var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                gradient.addColorStop(0, '#ff0000'); // 중심 색상: 빨간색
+                gradient.addColorStop(1, '#ffa500'); // 외곽 색상: 주황색
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            // 동그라미 움직이기
+            move() {
+                this.x += this.dx;
+                this.y += this.dy;
+
+                // 경계 처리
+                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+                    this.dx = -this.dx;
+                }
+                if (this.y - this.radius < 0 || this.y + this.radius > canvas.height) {
+                    this.dy = -this.dy;
+                }
+            }
+        }
+
+        // 동그라미 배열
+        var circles = [];
+
+        // 동그라미 생성
+        var circleRadius = 20;
+        var circleSpacing = 50;
+
+        for (var y = circleRadius; y < canvas.height; y += circleSpacing) {
+            for (var x = circleRadius; x < canvas.width; x += circleSpacing) {
+                var dx = Math.random() * 4 - 2; // x 방향 속도 (-2 ~ 2)
+                var dy = Math.random() * 4 - 2; // y 방향 속도 (-2 ~ 2)
+                circles.push(new Circle(x, y, circleRadius, dx, dy));
+            }
+        }
+
+        // 애니메이션 함수
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (var i = 0; i < circles.length; i++) {
+                circles[i].draw();
+                circles[i].move();
+            }
+        }
+
+        animate();
+    </script>
+</body>
+</html>
